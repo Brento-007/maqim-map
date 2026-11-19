@@ -1,0 +1,256 @@
+/* --- 基础重置与全局变量 --- */
+:root {
+    --bg-dark: #1e2128;
+    --panel-bg: #282c35;
+    --text-main: #e0e0e0;
+    --text-muted: #8b92a5;
+    --accent: #5b73a6;
+    --marker-color: #ff4757;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Microsoft YaHei', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 1400px;/* 根据1000px地图 + 侧边栏稍微放宽 */
+}
+
+/* --- 头部标题 --- */
+.header {
+    margin-bottom: 30px;
+}
+.header h1 {
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+.header p {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* --- 区域标签栏 --- */
+.region-tags {
+    background-color: var(--panel-bg);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px 30px;
+    font-size: 14px;
+    color: var(--text-muted);
+    border: 1px solid #333945;
+}
+.region-tags span {
+    cursor: pointer;
+    transition: color 0.3s;
+}
+.region-tags span:hover, .region-tags span.active {
+    color: #fff;
+}
+.region-tags span.active {
+    font-weight: bold;
+}
+.region-tags span::before {
+    content: '●';
+    margin-right: 6px;
+    font-size: 10px;
+    vertical-align: middle;
+    color: #4a5468;
+}
+.region-tags span.active::before {
+    color: var(--accent);
+}
+
+/* --- 主体内容区 --- */
+.main-content {
+    background-color: var(--panel-bg);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    border: 1px solid #333945;
+}
+
+/* --- 左侧地图容器 --- */
+.map-container {
+    width: 1000px;
+    height: 1000px;
+    background-color: #dbe4eb;
+    border-radius: 6px;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* 新增：内层坐标系，固定 1000x1000 */
+.map-inner {
+    width: 1000px;
+    height: 1000px;
+    position: relative; /* 关键：红点的绝对定位以此为基准 */
+}
+
+.map-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+/* --- 动态坐标点样式 --- */
+.marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: var(--marker-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%); /* 居中定位 */
+    box-shadow: 0 0 10px var(--marker-color);
+    z-index: 10;
+}
+.marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    background-color: var(--marker-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.4;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+/* --- 右侧信息面板 --- */
+.info-panel {
+    flex: 1;
+    min-width: 300px;
+    background-color: #2d323e;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+.info-header {
+    background-color: #3a4151;
+    padding: 20px;
+    font-size: 24px;
+    font-weight: 500;
+    border-radius: 6px 6px 0 0;
+}
+.info-list {
+    padding: 20px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 600px; /* 防止侧边栏过长 */
+    overflow-y: auto;  /* 选项过多时出现滚动条 */
+}
+.info-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: var(--text-main);
+    cursor: pointer;
+    user-select: none;
+}
+/* 自定义复选框样式 */
+.info-list input[type="checkbox"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--text-muted);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+.info-list input[type="checkbox"]:checked {
+    border-color: var(--accent);
+    background-color: var(--accent);
+}
+.info-list input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    top: -1px;
+    left: 2px;
+}
+
+/* --- 手机端响应式 --- */
+@media (max-width: 1024px) {
+    body {
+        padding: 15px 10px;
+    }
+    .header h1 {
+        font-size: 28px;
+    }
+    .region-tags {
+        padding: 15px;
+        gap: 10px 15px;
+        font-size: 13px;
+    }
+    .main-content {
+        flex-direction: column;
+        padding: 10px;
+        gap: 15px;
+    }
+    /* 手机上的地图容器变成了一个滑动的窗口 */
+    .map-container {
+        width: 100%;      
+        height: 55vh;     
+        overflow: auto;   /* 开启滚动 */
+        position: relative;
+        isolation: isolate;
+    }
+    /* 里面的内容依然是固定的 1000x1000 */
+    .map-inner {
+        width: 1000px;    
+        height: 1000px;
+    }
+    .map-container img {
+        width: 1000px;    
+        height: 1000px;
+        max-width: none;  
+    }
+    .info-panel {
+        min-width: 100%;
+        width: 100%;
+    }
+    .info-list {
+        max-height: 250px; 
+    }
+    /* 隐藏地图容器的滚动条，但保留滑动功能 */
+    .map-container::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Edge */
+    }
+    .map-container {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "title": "艾明馬夏",
+    "imgSrc": "map001.jpg",
+    "markers": {
+        "bead": { "top": "30%", "left": "40%" },
+        "nest": { "top": "60%", "left": "70%" },
+        "cat":  { "top": "80%", "left": "20%" }
+    }
+}

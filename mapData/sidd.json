@@ -1,0 +1,9 @@
+{
+    "title": "希德斯特雪原",
+    "imgSrc": "map011.jpg",
+    "markers": {
+        "bead": { "top": "30%", "left": "40%" },
+        "nest": { "top": "60%", "left": "70%" },
+        "cat":  { "top": "80%", "left": "20%" }
+    }
+}
