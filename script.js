@@ -26,9 +26,18 @@ const infoTitle = document.getElementById('info-title');
 const listContainer = document.getElementById('info-list-container');
 const markersContainer = document.getElementById('markers-container'); 
 
+// 记录区域标签的繁体原文，供语言切换时还原（脚本先于初始化执行）
+tags.forEach(tag => { tag.dataset.source = tag.textContent; });
+
 let currentRegion = 'airlene'; // 默认启动加载的地图
 
-// 4. 核心函数：渲染侧边栏和红点
+// 4. 获取当前语言下的显示文本（繁体为原文，简体走词表转换）
+function t(text) {
+    if (typeof convertText !== 'function') return text;
+    return convertText(text, isTraditional() ? 'zh-Hant' : 't2s');
+}
+
+// 5. 核心函数：渲染侧边栏和红点
 function renderUI(markersData) {
     listContainer.innerHTML = ''; // 清空侧边栏
     markersContainer.innerHTML = ''; // 清空旧的红点
@@ -41,19 +50,23 @@ function renderUI(markersData) {
         emptyMsg.style.fontSize = '14px';
         emptyMsg.style.textAlign = 'center';
         emptyMsg.style.padding = '20px 0';
-        emptyMsg.textContent = '该区域暂无标记点';
+        emptyMsg.textContent = t('該區域暫無標記點');
         listContainer.appendChild(emptyMsg);
         return; // 直接返回，不再往下执行生成红点的逻辑
     }
 
+    const countUnit = t('個');
+
     for (const key in markersData) {
         const markerInfo = markersData[key];
-        
-        // 生成侧边栏复选框
+        const markerName = t(markerInfo.name);
+
+        // 生成侧边栏复选框（猫咪小屋的起點/終點不需要数量标识）
         const li = document.createElement('li');
+        const countText = key === 'cat' ? '' : ` <span style="color:#888;font-size:12px;">(${markerInfo.top.length}${countUnit})</span>`;
         li.innerHTML = `
             <input type="checkbox" id="check-${key}" data-target="marker-group-${key}">
-            <label for="check-${key}">${markerInfo.name} <span style="color:#888;font-size:12px;">(${markerInfo.top.length}个)</span></label>
+            <label for="check-${key}">${markerName}${countText}</label>
         `;
         listContainer.appendChild(li);
 
@@ -61,7 +74,7 @@ function renderUI(markersData) {
         const groupDiv = document.createElement('div');
         groupDiv.id = `marker-group-${key}`;
         groupDiv.className = 'marker-group'; 
-        groupDiv.style.display = 'none'; // 默认隐藏
+        groupDiv.style.display = 'none'; // 默认全部隐藏
         groupDiv.style.position = 'absolute';
         groupDiv.style.top = '0';
         groupDiv.style.left = '0';
@@ -69,13 +82,23 @@ function renderUI(markersData) {
         groupDiv.style.height = '100%';
         groupDiv.style.pointerEvents = 'none'; // 穿透鼠标事件，防止挡住地图
 
-        // 遍历数组，把每一个坐标都生成一个真正的红点
+        // 猫咪小屋：为前两个点添加「起點 / 終點」标识
+        const labelTexts = key === 'cat' ? [t('起點'), t('終點')] : [];
         for (let i = 0; i < markerInfo.top.length; i++) {
             const dot = document.createElement('div');
             dot.className = 'marker'; 
+            dot.dataset.type = key; // 标记种类，用于区分颜色
             dot.style.top = markerInfo.top[i];
             dot.style.left = markerInfo.left[i];
-            dot.title = markerInfo.name + " - 坐标 " + (i + 1); // 鼠标悬停显示提示
+            dot.title = `${markerName} - ${t('座標')} ${i + 1}`; // 鼠标悬停显示提示
+
+            if (labelTexts[i]) {
+                const label = document.createElement('span');
+                label.className = 'marker-label';
+                label.textContent = labelTexts[i];
+                dot.appendChild(label);
+            }
+
             groupDiv.appendChild(dot);
         }
 
@@ -122,35 +145,53 @@ async function loadMapData(regionKey) {
 // 6. 点击标签切换地图
 tags.forEach(tag => {
     tag.addEventListener('click', async function() {
-        tags.forEach(t => t.classList.remove('active'));
+        tags.forEach(tag => tag.classList.remove('active'));
         this.classList.add('active');
         currentRegion = this.getAttribute('data-region');
-        
-        mapImg.style.opacity = 0.5; // 加载暗化效果
-
-        const data = await loadMapData(currentRegion);
-
-        if (data) {
-            infoTitle.textContent = data.title;
-            mapImg.src = IMG_BASE_URL + data.imgSrc;
-            mapImg.style.opacity = 1;
-            renderUI(data.markers);
-        } else {
-            mapImg.style.opacity = 1; 
-        }
+        await renderRegion(currentRegion);
     });
 });
 
-// 7. 初始化页面
+// 7. 加载并渲染指定区域（切换语言时复用，保留已加载的数据）
+let currentData = null;
+
+async function renderRegion(regionKey, data) {
+    mapImg.style.opacity = 0.5; // 加载暗化效果
+
+    const regionData = data || await loadMapData(regionKey);
+
+    if (regionData) {
+        currentData = regionData;
+        infoTitle.textContent = t(regionData.title);
+        mapImg.src = IMG_BASE_URL + regionData.imgSrc;
+        mapImg.style.opacity = 1;
+        renderUI(regionData.markers);
+    } else {
+        mapImg.style.opacity = 1;
+    }
+}
+
+// 切换语言后重新渲染当前区域（区域标签由 applyLanguage 处理）
+function refreshCurrentRegion() {
+    if (currentData) {
+        infoTitle.textContent = t(currentData.title);
+        renderUI(currentData.markers);
+    }
+}
+
+// 8. 初始化页面
 async function init() {
     const data = await loadMapData(currentRegion);
     if (data) {
-        infoTitle.textContent = data.title;
+        currentData = data;
+        infoTitle.textContent = t(data.title);
         mapImg.src = IMG_BASE_URL + data.imgSrc;
         renderUI(data.markers);
     } else {
         // 如果没找到数据，给个提示
         console.warn("⚠️ 提示：默认地图的 JSON 文件未找到。请确保 mapData 文件夹里有 airlene.json");
     }
+    if (typeof initLangToggle === 'function') initLangToggle();
+    if (typeof applyLanguage === 'function') applyLanguage(currentLang);
 }
 init();

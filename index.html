@@ -1,19 +1,24 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>洛奇M地图信息</title>
+    <title>瑪奇M地圖信息</title>
     <!-- 1. 引入外部 CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
+    <!-- 语言切换 -->
+    <button id="lang-toggle" type="button" title="切換為简体">
+        <span class="lang-opt active" data-lang="zh-Hans">简</span><span class="lang-sep">/</span><span class="lang-opt" data-lang="zh-Hant">繁</span>
+    </button>
+
     <!-- 标题 -->
     <div class="header">
-        <h1>洛奇M地图信息</h1>
-        <p>版本更新至S0赛季</p>
+        <h1 data-i18n="瑪奇M地圖信息">瑪奇M地圖信息</h1>
+        <p data-i18n="版本更新至S0賽季">版本更新至S0賽季</p>
     </div>
 
     <!-- 区域标签 -->
@@ -39,7 +44,7 @@
         <div class="map-container" id="map-box">
             <!-- 真正的 1000x1000 坐标系 -->
             <div class="map-inner">
-                <img id="map-image" src="https://picsum.photos/1000/1000?random=1" alt="地图区域">
+                <img id="map-image" src="https://picsum.photos/1000/1000?random=1" alt="地圖區域">
                 <!-- 坐标点容器 -->
                 <div id="markers-container"></div>
             </div>
@@ -55,6 +60,7 @@
 </div>
 
 <!-- 2. 引入外部 JS -->
+<script src="lang.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
