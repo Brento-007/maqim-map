@@ -33,7 +33,18 @@ function renderUI(markersData) {
     listContainer.innerHTML = ''; // 清空侧边栏
     markersContainer.innerHTML = ''; // 清空旧的红点
 
-    if (!markersData) return;
+    // 👇 新增：判断如果没有数据，或者数据为空对象
+    if (!markersData || Object.keys(markersData).length === 0) {
+        // 在侧边栏显示一句提示，并加一点灰色样式
+        const emptyMsg = document.createElement('li');
+        emptyMsg.style.color = '#8b92a5';
+        emptyMsg.style.fontSize = '14px';
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.padding = '20px 0';
+        emptyMsg.textContent = '该区域暂无标记点';
+        listContainer.appendChild(emptyMsg);
+        return; // 直接返回，不再往下执行生成红点的逻辑
+    }
 
     for (const key in markersData) {
         const markerInfo = markersData[key];

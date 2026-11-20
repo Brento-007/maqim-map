@@ -2,8 +2,10 @@
     "title": "冰霜峽谷",
     "imgSrc": "map007.jpg",
     "markers": {
-        "bead": { "top": "30%", "left": "40%" },
-        "nest": { "top": "60%", "left": "70%" },
-        "cat":  { "top": "80%", "left": "20%" }
+        "photo": {
+            "name": "拍照景點",
+            "top": ["42.1%"],
+            "left": ["29.2%"]
+        }
     }
 }
