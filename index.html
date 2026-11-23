@@ -44,7 +44,8 @@
         <div class="map-container" id="map-box">
             <!-- 真正的 1000x1000 坐标系 -->
             <div class="map-inner">
-                <img id="map-image" src="https://picsum.photos/1000/1000?random=1" alt="地圖區域">
+                <!-- src 由 script.js 按当前区域注入，这里不放占位链接，避免无谓的外网请求 -->
+                <img id="map-image" alt="地圖區域" width="1000" height="1000">
                 <!-- 坐标点容器 -->
                 <div id="markers-container"></div>
             </div>
